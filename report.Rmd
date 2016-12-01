@@ -20,7 +20,7 @@ Loading the measurements, first for 10 threads, then for 2 and 4, for the same d
 ```{r, echo=FALSE}
 library(ggplot2)
 df <- read.csv("./data/measurements_10_T.csv")
-df2 <- read.csv("./data/measurements_2_4_T_10e6.csv")
+df2 <- read.csv("./data/measurements_2_4_6_8_T.csv")
 df3 <- read.csv("./data/measurementsRANDOM_par.csv")
 ```
 
@@ -29,7 +29,7 @@ Compute the average execution time for each size and type.
 ```{r}
 library(plyr)
 df_avg <- ddply(df,c("Size","Type"), summarise, Time = mean(Time))
-df2_avg <- ddply(df2,c("Size","Type"), summarise, Time = mean(Time))
+df2_avg <- ddply(df2,c("Size","Type","Cores"), summarise, Time = mean(Time))
 df3_avg <- ddply(df3,c("Size","Type"), summarise, Time = mean(Time))
 ```
 
@@ -39,9 +39,31 @@ par(mfrow=c(2,2))
 ```
 
 Plotting the execution time for different types with different number of threads.
-```{r fig.width=7, fig.height=4}
+```{r}
 ggplot(data=df3_avg,aes(x=Size,y=Time,color=Type))+geom_line() + geom_vline(xintercept = 5E04)
 
 ```
 
+Speedup
+
+```{r}
+seq <- df2_avg[df2_avg$Type == " Sequential",]
+par2 <- df2_avg[df2_avg$Type == " Parallel (2)",]
+par4 <- df2_avg[df2_avg$Type == " Parallel (4)",]
+par6 <- df2_avg[df2_avg$Type == " Parallel (6)",]
+par8 <- df2_avg[df2_avg$Type == " Parallel (8)",]
+par2_speedup <- par2
+par2_speedup["Time"] <- seq["Time"] / par2_speedup["Time"]
+par4_speedup <- par4
+par4_speedup["Time"] <- seq["Time"] / par4_speedup["Time"]
+par6_speedup <- par6
+par6_speedup["Time"] <- seq["Time"] / par6_speedup["Time"]
+par8_speedup <- par8
+par8_speedup["Time"] <- seq["Time"] / par8_speedup["Time"]
+
+df2_speedup <- rbind(par2_speedup, par4_speedup, par6_speedup, par8_speedup, seq)
+
+ggplot(data=df2_speedup, aes(x=Cores,y=Time,color=Size, group = Size))+ geom_point() + geom_line()
+```
+ggplot(data=df2_avg,aes(x=Cores,y=Time,color=Size, group = Size))+ geom_point() + geom_line() + geom_vline(xintercept = 1E1)
 

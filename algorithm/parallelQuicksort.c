@@ -21,7 +21,7 @@ and fixed it thanks to my two friends Valgrind and gdb.
 #include <sys/time.h>
 #include <string.h>
 
-#define DNUM 10000000
+#define DNUM 1000000
 #define THREAD_LEVEL 10
 
 //for sequential and parallel implementation
@@ -94,7 +94,7 @@ int main (int argc, char *argv[])
 	//Compute time difference.
 	diff = ((end.tv_sec * 1000000 + end.tv_usec)
 		  - (start.tv_sec * 1000000 + start.tv_usec))/1000000.0;
-	printf("Sequential quicksort took: %lf sec.\n", diff);
+	printf("Sequential --1-- quicksort took: %lf sec.\n", diff);
 
 
 
@@ -115,7 +115,7 @@ int main (int argc, char *argv[])
 	  //Compute time difference.
 	  diff = ((end.tv_sec * 1000000 + end.tv_usec)
              - (start.tv_sec * 1000000 + start.tv_usec))/1000000.0;
-	  printf("Parallel (%d) quicksort took: %lf sec.\n", i, diff);
+	  printf("Parallel (%d) --%d-- quicksort took: %lf sec.\n", i, i, diff);
 	}
 	
 
@@ -134,7 +134,7 @@ int main (int argc, char *argv[])
 	//Compute time difference.
 	diff = ((end.tv_sec * 1000000 + end.tv_usec)
 		  - (start.tv_sec * 1000000 + start.tv_usec))/1000000.0;
-	printf("Built-in quicksort took: %lf sec.\n", diff);
+	printf("Built-in --1-- quicksort took: %lf sec.\n", diff);
 
 
 

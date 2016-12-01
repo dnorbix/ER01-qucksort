@@ -5,7 +5,7 @@ quicksort: parallelQuicksort.c
 
 measurements.txt: quicksort Makefile
 	rm -f measurements.txt
-	for i in 100 1000 10000 100000 1000000 10000000; do       \
+	for i in 100 1000 10000 100000 1000000; do       \
 	   for rep in `seq 1 5`; do               \
 	     echo "Size: $$i" ;                   \
 	     ./quicksort $$i ;   \
