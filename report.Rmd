@@ -22,6 +22,9 @@ library(ggplot2)
 df <- read.csv("./data/measurements_10_T.csv")
 df2 <- read.csv("./data/measurements_2_4_6_8_T.csv")
 df3 <- read.csv("./data/measurementsRANDOM_par.csv")
+df4 <- read.csv("./data/measurements_2_to_16_T.csv")
+df5 <- read.csv("./data/measurements_2_to_10_T_i3.csv")
+df6 <- read.csv("./data/measurements_2_to_10_T_i7.csv")
 ```
 
 Compute the average execution time for each size and type.
@@ -31,6 +34,9 @@ library(plyr)
 df_avg <- ddply(df,c("Size","Type"), summarise, Time = mean(Time))
 df2_avg <- ddply(df2,c("Size","Type","Cores"), summarise, Time = mean(Time))
 df3_avg <- ddply(df3,c("Size","Type"), summarise, Time = mean(Time))
+df4_avg <- ddply(df4,c("Size","Type","Cores"), summarise, Time = mean(Time))
+df5_avg <- ddply(df5,c("Size","Type","Cores"), summarise, Time = mean(Time))
+df6_avg <- ddply(df6,c("Size","Type","Cores"), summarise, Time = mean(Time))
 ```
 
 
@@ -46,24 +52,116 @@ ggplot(data=df3_avg,aes(x=Size,y=Time,color=Type))+geom_line() + geom_vline(xint
 
 Speedup
 
-```{r}
-seq <- df2_avg[df2_avg$Type == " Sequential",]
-par2 <- df2_avg[df2_avg$Type == " Parallel (2)",]
-par4 <- df2_avg[df2_avg$Type == " Parallel (4)",]
-par6 <- df2_avg[df2_avg$Type == " Parallel (6)",]
-par8 <- df2_avg[df2_avg$Type == " Parallel (8)",]
-par2_speedup <- par2
-par2_speedup["Time"] <- seq["Time"] / par2_speedup["Time"]
-par4_speedup <- par4
-par4_speedup["Time"] <- seq["Time"] / par4_speedup["Time"]
-par6_speedup <- par6
-par6_speedup["Time"] <- seq["Time"] / par6_speedup["Time"]
-par8_speedup <- par8
-par8_speedup["Time"] <- seq["Time"] / par8_speedup["Time"]
 
-df2_speedup <- rbind(par2_speedup, par4_speedup, par6_speedup, par8_speedup, seq)
+Speedup for a parallel execution:
+  speedup = sequential time / parallel time
+
+Laptop: Latitude E6400, 2 cores, 4GB RAM 
+number of threads: 2-16
+
+```{r}
+NR_THREADS <- 16
+seq <- df4_avg[df4_avg$Type == " Sequential",]
+df2_speedup <- rbind(seq)
+
+for (t in c(2:NR_THREADS)){
+  part <- df4_avg[df4_avg$Cores == t,]
+  part["Time"] <- seq["Time"] / part["Time"]
+  df2_speedup <- rbind(df2_speedup, part)
+}
 
 ggplot(data=df2_speedup, aes(x=Cores,y=Time,color=Size, group = Size))+ geom_point() + geom_line()
 ```
-ggplot(data=df2_avg,aes(x=Cores,y=Time,color=Size, group = Size))+ geom_point() + geom_line() + geom_vline(xintercept = 1E1)
 
+Laptop: Dell , 4 cores, 4GB RAM
+number of threads: 2-10
+
+```{r}
+NR_THREADS <- 10
+seq <- df5_avg[df5_avg$Type == " Sequential",]
+df5_speedup <- rbind(seq)
+
+for (t in c(2:NR_THREADS)){
+  part <- df5_avg[df5_avg$Cores == t,]
+  part["Time"] <- seq["Time"] / part["Time"]
+  df5_speedup <- rbind(df5_speedup, part)
+}
+
+ggplot(data=df5_speedup, aes(x=Cores,y=Time,color=Size, group = Size))+ geom_point() + geom_line()
+```
+
+Laptop: Apple , 4 cores, 16GB RAM
+number of threads: 2-10
+
+```{r}
+NR_THREADS <- 10
+seq <- df6_avg[df6_avg$Type == " Sequential",]
+df6_speedup <- rbind(seq)
+
+for (t in c(2:NR_THREADS)){
+  part <- df6_avg[df6_avg$Cores == t,]
+  part["Time"] <- seq["Time"] / part["Time"]
+  df6_speedup <- rbind(df6_speedup, part)
+}
+
+ggplot(data=df6_speedup, aes(x=Cores,y=Time,color=Size, group = Size))+ geom_point() + geom_line()
+```
+
+Efficiency
+
+
+Efficiency for a parallel execution:
+  efficiency = sequential time / parallel time
+  
+Laptop: Latitude E6400, 2 cores, 4GB RAM 
+number of threads: 2-16
+  
+```{r}
+NR_THREADS <- 16
+seq <- df4_avg[df4_avg$Type == " Sequential",]
+df4_efficiency <- rbind(seq)
+
+for (t in c(2:NR_THREADS)){
+  part <- df4_avg[df4_avg$Cores == t,]
+  part["Time"] <- seq["Time"] / part["Time"]
+  part["Time"] <- part["Time"] / t
+  df4_efficiency <- rbind(df4_efficiency, part)
+}
+
+ggplot(data=df4_efficiency, aes(x=Cores,y=Time,color=Size, group = Size))+ geom_point() + geom_line() + scale_y_continuous(limits=c(0,1))
+```
+
+Laptop: Dell , 4 cores, 4GB RAM
+number of threads: 2-10
+
+```{r}
+NR_THREADS <- 10
+seq <- df5_avg[df5_avg$Type == " Sequential",]
+df5_efficiency <- rbind(seq)
+
+for (t in c(2:NR_THREADS)){
+  part <- df5_avg[df5_avg$Cores == t,]
+  part["Time"] <- seq["Time"] / part["Time"]
+  part["Time"] <- part["Time"] / t
+  df5_efficiency <- rbind(df5_efficiency, part)
+}
+
+ggplot(data=df5_efficiency, aes(c(1:16), x=Cores,y=Time,color=Size, group = Size))+ geom_point() + geom_line() + scale_x_continuous(limits=c(1,16)) + 
+  scale_y_continuous(limits=c(0,1))
+```
+
+```{r}
+NR_THREADS <- 10
+seq <- df6_avg[df6_avg$Type == " Sequential",]
+df6_efficiency <- rbind(seq)
+
+for (t in c(2:NR_THREADS)){
+  part <- df6_avg[df6_avg$Cores == t,]
+  part["Time"] <- seq["Time"] / part["Time"]
+  part["Time"] <- part["Time"] / t
+  df6_efficiency <- rbind(df6_efficiency, part)
+}
+
+ggplot(data=df6_efficiency, aes(c(1:16), x=Cores,y=Time,color=Size, group = Size))+ geom_point() + geom_line() + scale_x_continuous(limits=c(1,16)) + 
+  scale_y_continuous(limits=c(0,1))
+```

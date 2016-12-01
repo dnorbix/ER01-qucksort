@@ -99,7 +99,7 @@ int main (int argc, char *argv[])
 
 
 	//Now, parallel quicksort.
-	for (int i = 2; i <= 8; i = i + 2){
+	for (int i = 2; i <= 16; i = i + 1){
 	  //copy list.
 	  memcpy(lyst, lystbck, NUM*sizeof(double));
 	  
