@@ -1,0 +1,47 @@
+---
+title: "ER01-quicksort-Report"
+output: html_document
+---
+Introduction
+============
+
+
+Method
+======
+We used the algorithm from the link:
+http://mescal.imag.fr/membres/arnaud.legrand/teaching/2013/M2R_EP_archive_quicksort.tgz
+
+First, we used the following machine:
+Dell Latitude E6400, with 4 GB RAM and two cores.
+
+Results
+=======
+Loading the measurements, first for 10 threads, then for 2 and 4, for the same data.
+```{r, echo=FALSE}
+library(ggplot2)
+df <- read.csv("./data/measurements_10_T.csv")
+df2 <- read.csv("./data/measurements_2_4_T_10e6.csv")
+df3 <- read.csv("./data/measurementsRANDOM_par.csv")
+```
+
+Compute the average execution time for each size and type.
+
+```{r}
+library(plyr)
+df_avg <- ddply(df,c("Size","Type"), summarise, Time = mean(Time))
+df2_avg <- ddply(df2,c("Size","Type"), summarise, Time = mean(Time))
+df3_avg <- ddply(df3,c("Size","Type"), summarise, Time = mean(Time))
+```
+
+
+```{r}
+par(mfrow=c(2,2))
+```
+
+Plotting the execution time for different types with different number of threads.
+```{r fig.width=7, fig.height=4}
+ggplot(data=df3_avg,aes(x=Size,y=Time,color=Type))+geom_line() + geom_vline(xintercept = 5E04)
+
+```
+
+
